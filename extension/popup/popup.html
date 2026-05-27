@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>ViDetect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e28;--border:#252a38;
+      --text:#e8eaf2;--muted:#6b7290;
+      --clean:#22d3a0;--clean-bg:#0a2e24;
+      --offensive:#f59e0b;--offensive-bg:#2a1f0a;
+      --hate:#f43f5e;--hate-bg:#2a0d14;
+      --violence:#f43f5e;--violence-bg:#2a0d14;
+      --nonviolence:#22d3a0;--nonviolence-bg:#0a2e24;
+      --uncertain:#f59e0b;--uncertain-bg:#2a1f0a;
+      --accent:#6366f1;--accent2:#818cf8;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{width:400px;min-height:500px;background:var(--bg);color:var(--text);font-family:'Be Vietnam Pro',sans-serif;font-size:13px;}
+
+    .header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;}
+    .logo{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--hate));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+    .header-text h1{font-size:14px;font-weight:700;}
+    .header-text p{font-size:11px;color:var(--muted);margin-top:1px;}
+    .status-dot{width:7px;height:7px;border-radius:50%;background:var(--clean);margin-left:auto;box-shadow:0 0 6px var(--clean);animation:pulse 2s infinite;}
+    .status-dot.offline{background:var(--hate);box-shadow:0 0 6px var(--hate);animation:none;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+    .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg2);}
+    .tab{flex:1;padding:8px 0;text-align:center;font-size:10.5px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.1px;}
+    .tab.active{color:var(--accent2);border-bottom-color:var(--accent);}
+    .tab:hover:not(.active){color:var(--text);}
+
+    .tab-content{display:none;padding:14px;}
+    .tab-content.active{display:block;}
+
+    /* ── Text tab ── */
+    .input-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;}
+    textarea{width:100%;height:95px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Be Vietnam Pro',sans-serif;font-size:13px;line-height:1.6;padding:9px 11px;resize:none;outline:none;transition:border-color .2s;}
+    textarea::placeholder{color:var(--muted);}
+    textarea:focus{border-color:var(--accent);}
+    .char-count{text-align:right;font-size:11px;color:var(--muted);margin-top:3px;}
+
+    .btn{width:100%;margin-top:10px;padding:10px;border:none;border-radius:8px;color:#fff;font-family:'Be Vietnam Pro',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+    .btn:disabled{opacity:.5;cursor:not-allowed;}
+    .btn-accent{background:var(--accent);}
+    .btn-accent:hover:not(:disabled){background:var(--accent2);transform:translateY(-1px);}
+    .btn-teal{background:linear-gradient(135deg,#0d9488,#0891b2);}
+    .btn-teal:hover:not(:disabled){opacity:.9;transform:translateY(-1px);}
+    .btn-video{background:linear-gradient(135deg,#be123c,var(--accent));}
+    .btn-video:hover:not(:disabled){opacity:.9;transform:translateY(-1px);}
+
+    .spinner{display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .result-card{margin-top:12px;border-radius:10px;border:1px solid var(--border);overflow:hidden;display:none;}
+    .result-card.show{display:block;animation:fadeUp .25s ease;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .result-header{padding:11px 13px;display:flex;align-items:center;gap:10px;}
+    .result-header.clean{background:var(--clean-bg);}
+    .result-header.offensive{background:var(--offensive-bg);}
+    .result-header.hate{background:var(--hate-bg);}
+    .result-header.violence{background:var(--violence-bg);}
+    .result-header.nonviolence{background:var(--nonviolence-bg);}
+    .result-header.uncertain{background:var(--uncertain-bg);}
+    .result-icon{font-size:20px;}
+    .result-label{font-size:14px;font-weight:700;}
+    .result-label.clean{color:var(--clean);}
+    .result-label.offensive{color:var(--offensive);}
+    .result-label.hate{color:var(--hate);}
+    .result-label.violence{color:var(--violence);}
+    .result-label.nonviolence{color:var(--nonviolence);}
+    .result-label.uncertain{color:var(--uncertain);}
+    .result-conf{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;}
+    .prob-bars{padding:11px 13px;border-top:1px solid var(--border);}
+    .prob-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+    .prob-row:last-child{margin-bottom:0;}
+    .prob-name{width:78px;font-size:11px;font-weight:500;color:var(--muted);flex-shrink:0;}
+    .prob-bar-wrap{flex:1;height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+    .prob-bar{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+    .prob-bar.clean{background:var(--clean);}
+    .prob-bar.offensive{background:var(--offensive);}
+    .prob-bar.hate{background:var(--hate);}
+    .prob-pct{width:38px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);flex-shrink:0;}
+
+    /* ── Video / Image shared ── */
+    .media-info-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:var(--muted);line-height:1.6;}
+    .media-info-box strong{color:var(--text);}
+    .media-status-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-height:110px;}
+    .vstatus-idle{padding:22px 16px;text-align:center;}
+
+    /* Image result grid */
+    .img-result-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;}
+    .img-stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
+    .img-stat-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;}
+    .img-stat-val.total{color:var(--accent2);}
+    .img-stat-val.safe{color:var(--clean);}
+    .img-stat-val.danger{color:var(--violence);}
+    .img-stat-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+
+    /* Video timeline */
+    .vsumm-mini{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;text-align:center;}
+    .vsumm-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;}
+    .vsumm-val.violence{color:var(--violence);}
+    .vsumm-val.nonviolence{color:var(--nonviolence);}
+    .vsumm-val.neutral{color:var(--accent2);}
+    .vsumm-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+    .timeline-bar{display:flex;gap:2px;height:14px;border-radius:6px;overflow:hidden;margin-bottom:6px;}
+    .timeline-seg{flex:1;border-radius:2px;}
+    .timeline-seg.violence{background:var(--hate);}
+    .timeline-seg.nonviolence{background:var(--clean);}
+    .timeline-seg.uncertain{background:var(--offensive);}
+    .timeline-legend{display:flex;gap:12px;font-size:11px;color:var(--muted);}
+    .legend-dot{width:7px;height:7px;border-radius:2px;display:inline-block;margin-right:3px;}
+
+    /* Stats */
+    .stats-section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:12px 0 8px;}
+    .stats-section-title:first-child{margin-top:0;}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+    .stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px;}
+    .stat-card .val{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;letter-spacing:-1px;}
+    .stat-card .val.total{color:var(--accent2);}
+    .stat-card .val.clean{color:var(--clean);}
+    .stat-card .val.offensive{color:var(--offensive);}
+    .stat-card .val.hate{color:var(--hate);}
+    .stat-card .val.violence{color:var(--violence);}
+    .stat-card .lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+
+    /* Settings */
+    .setting-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+    .setting-row:last-of-type{border-bottom:none;}
+    .setting-info{flex:1;}
+    .setting-info label{font-size:13px;font-weight:500;display:block;margin-bottom:2px;}
+    .setting-info small{font-size:11px;color:var(--muted);line-height:1.5;}
+    input[type="text"]{width:100%;padding:7px 9px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;margin-top:5px;transition:border-color .2s;}
+    input[type="text"]:focus{border-color:var(--accent);}
+    .toggle{position:relative;width:36px;height:20px;flex-shrink:0;}
+    .toggle input{opacity:0;width:0;height:0;}
+    .slider-track{position:absolute;inset:0;background:var(--border);border-radius:99px;cursor:pointer;transition:background .2s;}
+    .slider-track::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:var(--muted);border-radius:50%;transition:all .2s;}
+    .toggle input:checked+.slider-track{background:var(--accent);}
+    .toggle input:checked+.slider-track::before{transform:translateX(16px);background:#fff;}
+
+    .api-error{background:var(--hate-bg);border:1px solid var(--hate);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--hate);margin-top:9px;display:none;line-height:1.5;}
+    .api-error.show{display:block;}
+    .clear-btn,.save-btn{width:100%;margin-top:10px;padding:9px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;}
+    .clear-btn:hover{border-color:var(--hate);color:var(--hate);}
+    .save-btn:hover{border-color:var(--accent);color:var(--accent2);}
+    .section-divider{border:none;border-top:1px solid var(--border);margin:12px 0;}
+
+    .footer{padding:8px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .footer span{font-size:10px;color:var(--muted);}
+    .model-badges{display:flex;gap:4px;}
+    .model-badge{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent2);background:rgba(99,102,241,.12);padding:2px 6px;border-radius:99px;}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">🛡️</div>
+  <div class="header-text">
+    <h1>ViDetect v3.0</h1>
+    <p>Hate · Video Violence · Image Violence</p>
+  </div>
+  <div class="status-dot" id="statusDot"></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="text">💬 Văn bản</div>
+  <div class="tab" data-tab="video">🎬 Video</div>
+  <div class="tab" data-tab="image">🖼️ Ảnh</div>
+  <div class="tab" data-tab="stats">📊 Thống kê</div>
+  <div class="tab" data-tab="settings">⚙️ Cài đặt</div>
+</div>
+
+<!-- ── TEXT ── -->
+<div class="tab-content active" id="tab-text">
+  <div class="input-label">Nhập bình luận cần kiểm tra</div>
+  <textarea id="inputText" placeholder="Dán bình luận vào đây..."></textarea>
+  <div class="char-count"><span id="charCount">0</span> / 500</div>
+  <button class="btn btn-accent" id="analyzeBtn">
+    <span id="btnText">Phân tích ngay</span>
+    <div class="spinner" id="btnSpinner"></div>
+  </button>
+  <div class="api-error" id="apiError"></div>
+  <div class="result-card" id="resultCard">
+    <div class="result-header" id="resultHeader">
+      <span class="result-icon" id="resultIcon"></span>
+      <div>
+        <div class="result-label" id="resultLabel"></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px" id="resultDesc"></div>
+      </div>
+      <span class="result-conf" id="resultConf"></span>
+    </div>
+    <div class="prob-bars">
+      <div class="prob-row"><span class="prob-name">Bình thường</span><div class="prob-bar-wrap"><div class="prob-bar clean" id="bar0" style="width:0%"></div></div><span class="prob-pct" id="pct0">0%</span></div>
+      <div class="prob-row"><span class="prob-name">Xúc phạm</span><div class="prob-bar-wrap"><div class="prob-bar offensive" id="bar1" style="width:0%"></div></div><span class="prob-pct" id="pct1">0%</span></div>
+      <div class="prob-row"><span class="prob-name">Thù ghét</span><div class="prob-bar-wrap"><div class="prob-bar hate" id="bar2" style="width:0%"></div></div><span class="prob-pct" id="pct2">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── VIDEO ── -->
+<div class="tab-content" id="tab-video">
+  <div class="media-info-box">
+    Capture <strong>frame từ video đang phát</strong> trên trang → phân tích bằng MobileNetV2+BiLSTM. Bật <strong>Tự động quét video</strong> trong Cài đặt, hoặc nhấn nút bên dưới.
+  </div>
+  <div class="media-status-card" id="videoStatusCard">
+    <div class="vstatus-idle">
+      <div style="font-size:26px;margin-bottom:6px">🎬</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text)">Chưa có video đang phát</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">Phát video trên Facebook, YouTube, TikTok</div>
+    </div>
+  </div>
+  <button class="btn btn-video" id="scanNowBtn" style="margin-top:10px">🔍 Quét video đang phát ngay</button>
+  <div class="api-error" id="videoTabError"></div>
+</div>
+
+<!-- ── IMAGE ── -->
+<div class="tab-content" id="tab-image">
+  <div class="media-info-box">
+    Quét <strong>ảnh tĩnh trên trang</strong> bằng ViT (Vision Transformer). Extension tự động phát hiện ảnh bạo lực trong feed, post và thumbnail. Ảnh bạo lực sẽ bị <strong>blur và đánh dấu</strong> trực tiếp.
+  </div>
+  <div class="media-status-card" id="imageStatusCard">
+    <div class="vstatus-idle">
+      <div style="font-size:26px;margin-bottom:6px">🖼️</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text)">Chưa có kết quả quét ảnh</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">Bật "Tự động quét ảnh" hoặc nhấn nút bên dưới</div>
+    </div>
+  </div>
+  <button class="btn btn-teal" id="scanImagesNowBtn" style="margin-top:10px">🔍 Quét ảnh trên trang ngay</button>
+  <div class="api-error" id="imageTabError"></div>
+</div>
+
+<!-- ── STATS ── -->
+<div class="tab-content" id="tab-stats">
+  <div class="stats-section-title">💬 Văn bản</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="val total" id="statTotal">0</div><div class="lbl">Tổng kiểm tra</div></div>
+    <div class="stat-card"><div class="val clean" id="statClean">0</div><div class="lbl">Bình thường</div></div>
+    <div class="stat-card"><div class="val offensive" id="statOffensive">0</div><div class="lbl">Xúc phạm</div></div>
+    <div class="stat-card"><div class="val hate" id="statHate">0</div><div class="lbl">Thù ghét</div></div>
+  </div>
+  <div class="stats-section-title">🎬 Video</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="val total" id="statVideoTotal">0</div><div class="lbl">Lượt quét</div></div>
+    <div class="stat-card"><div class="val violence" id="statVideoViolence">0</div><div class="lbl">Có bạo lực</div></div>
+  </div>
+  <div class="stats-section-title">🖼️ Ảnh (phiên này)</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="val total" id="statImgTotal">0</div><div class="lbl">Ảnh đã quét</div></div>
+    <div class="stat-card"><div class="val violence" id="statImgViolence">0</div><div class="lbl">Có bạo lực</div></div>
+  </div>
+  <button class="clear-btn" id="clearStats">Xoá thống kê</button>
+</div>
+
+<!-- ── SETTINGS ── -->
+<div class="tab-content" id="tab-settings">
+  <div class="setting-row">
+    <div class="setting-info">
+      <label>API Endpoint</label>
+      <small>Server FastAPI chạy PhoBERT, MoBiLSTM, ViT</small>
+      <input type="text" id="apiUrl" value="http://localhost:8000">
+    </div>
+  </div>
+  <hr class="section-divider">
+  <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px">Bình luận</div>
+  <div class="setting-row">
+    <div class="setting-info">
+      <label>Tự động quét bình luận</label>
+      <small>Highlight bình luận thù ghét trên trang</small>
+    </div>
+    <label class="toggle"><input type="checkbox" id="autoScan"><span class="slider-track"></span></label>
+  </div>
+  <div class="setting-row">
+    <div class="setting-info">
+      <label>Ẩn bình luận thù ghét</label>
+      <small>Tự động ẩn bình luận Hate</small>
+    </div>
+    <label class="toggle"><input type="checkbox" id="hideHate"><span class="slider-track"></span></label>
+  </div>
+  <hr class="section-divider">
+  <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px">Video & Ảnh</div>
+  <div class="setting-row">
+    <div class="setting-info">
+      <label>Tự động quét video</label>
+      <small>Capture frame video đang phát, phân tích mỗi 2 giây</small>
+    </div>
+    <label class="toggle"><input type="checkbox" id="autoScanVideo"><span class="slider-track"></span></label>
+  </div>
+  <div class="setting-row">
+    <div class="setting-info">
+      <label>Tự động quét ảnh</label>
+      <small>Quét ảnh tĩnh trong feed bằng ViT, blur ảnh bạo lực</small>
+    </div>
+    <label class="toggle"><input type="checkbox" id="autoScanImage"><span class="slider-track"></span></label>
+  </div>
+  <div class="setting-row">
+    <div class="setting-info">
+      <label>Ngưỡng phát hiện bạo lực</label>
+      <small>Áp dụng cho cả video và ảnh (mặc định: 0.70)</small>
+      <input type="text" id="violenceThreshold" value="0.70">
+    </div>
+  </div>
+  <button class="save-btn" id="saveSettings">💾 Lưu cài đặt</button>
+</div>
+
+<div class="footer">
+  <span>ViDetect v3.0</span>
+  <div class="model-badges">
+    <span class="model-badge">PhoBERT</span>
+    <span class="model-badge">MoBiLSTM</span>
+    <span class="model-badge">ViT</span>
+  </div>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>

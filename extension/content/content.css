@@ -1,0 +1,223 @@
+/* ViDetect v3 – Content Styles */
+
+/* ── Comment badges ── */
+.vihate-badge {
+  display: inline-block;
+  font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 99px;
+  margin-left: 6px; vertical-align: middle;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  cursor: default; letter-spacing: .2px;
+}
+.vihate-offensive { background:rgba(245,158,11,.15); color:#d97706; border:1px solid rgba(245,158,11,.3); }
+.vihate-hate      { background:rgba(244,63,94,.15);  color:#e11d48; border:1px solid rgba(244,63,94,.3);  }
+
+/* ── Video overlay ── */
+.vihate-video-overlay {
+  position: absolute;
+  top: 10px; left: 10px;
+  z-index: 2147483640;
+  pointer-events: none;
+}
+
+.vihate-vo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 99px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.15);
+  transition: all .3s ease;
+
+  /* default – giám sát */
+  background: rgba(20,22,32,.75);
+  color: rgba(255,255,255,.75);
+}
+
+.vihate-vo-badge.collecting {
+  background: rgba(20,22,32,.75);
+  color: rgba(255,255,255,.6);
+}
+
+.vihate-vo-badge.analyzing {
+  background: rgba(99,102,241,.85);
+  color: #fff;
+  animation: vihate-pulse 1s infinite;
+}
+
+.vihate-vo-badge.violence {
+  background: rgba(244,63,94,.9);
+  color: #fff;
+  border-color: rgba(244,63,94,.6);
+  box-shadow: 0 0 16px rgba(244,63,94,.5);
+  animation: vihate-alert 1.2s ease-in-out infinite alternate;
+}
+
+.vihate-vo-badge.safe {
+  background: rgba(34,211,160,.85);
+  color: #052e16;
+  border-color: rgba(34,211,160,.4);
+}
+
+.vihate-vo-badge.warn {
+  background: rgba(245,158,11,.85);
+  color: #1c1003;
+}
+
+.vihate-vo-badge.error {
+  background: rgba(30,30,40,.85);
+  color: rgba(244,63,94,.9);
+}
+
+@keyframes vihate-pulse {
+  0%,100% { opacity:1; } 50% { opacity:.6; }
+}
+@keyframes vihate-alert {
+  from { box-shadow: 0 0 10px rgba(244,63,94,.4); }
+  to   { box-shadow: 0 0 24px rgba(244,63,94,.8); }
+}
+
+/* ── Toast ── */
+.vihate-toast {
+  position: fixed; bottom:24px; right:24px; z-index:2147483647;
+  background:#13161e; border:1px solid #252a38; border-radius:10px;
+  padding:12px 14px; min-width:260px; max-width:340px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  font-family:-apple-system, BlinkMacSystemFont,'Segoe UI',sans-serif;
+  opacity:0; transform:translateY(10px);
+  transition:opacity .25s ease, transform .25s ease;
+  pointer-events:none;
+}
+.vihate-toast.visible { opacity:1; transform:translateY(0); }
+.vihate-toast-header { display:flex; align-items:center; font-size:13px; font-weight:600; margin-bottom:6px; }
+.vihate-toast-text   { font-size:12px; color:#6b7290; line-height:1.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.vihate-toast-error  { color:#f43f5e; font-size:12px; font-weight:500; }
+
+/* ═══════════════════════════════════════════════════════
+   VIDEO OVERLAY – ViDetect
+   ═══════════════════════════════════════════════════════ */
+
+.vihate-video-overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2147483640;
+  pointer-events: none;
+}
+
+.vihate-video-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: all 0.3s ease;
+  letter-spacing: 0.2px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+
+.vihate-video-badge.scanning {
+  background: rgba(20, 22, 30, 0.85);
+  color: #9ca3c8;
+}
+.vihate-video-badge.safe {
+  background: rgba(10, 46, 36, 0.90);
+  color: #22d3a0;
+  border-color: rgba(34, 211, 160, 0.3);
+}
+.vihate-video-badge.violence {
+  background: rgba(42, 13, 20, 0.92);
+  color: #f43f5e;
+  border-color: rgba(244, 63, 94, 0.4);
+  animation: vihate-pulse-danger 1.5s infinite;
+}
+.vihate-video-badge.uncertain {
+  background: rgba(42, 31, 10, 0.90);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+@keyframes vihate-pulse-danger {
+  0%, 100% { box-shadow: 0 2px 12px rgba(244,63,94,0.4); }
+  50%       { box-shadow: 0 2px 20px rgba(244,63,94,0.7); }
+}
+
+.vihate-video-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.vihate-video-dot.safe      { background: #22d3a0; box-shadow: 0 0 5px #22d3a0; }
+.vihate-video-dot.violence  { background: #f43f5e; box-shadow: 0 0 5px #f43f5e; animation: dot-blink 1s infinite; }
+.vihate-video-dot.uncertain { background: #f59e0b; }
+.vihate-video-dot:not(.safe):not(.violence):not(.uncertain) {
+  background: #6b7290;
+  animation: dot-spin-pulse 1.5s infinite;
+}
+
+@keyframes dot-blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes dot-spin-pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+.vihate-video-label { font-size: 12px; }
+.vihate-video-conf  { font-size: 11px; opacity: 0.75; font-family: 'JetBrains Mono', monospace; }
+
+/* ═══════════════════════════════════════════════════════
+   IMAGE BADGE – ViDetect (ViT model)
+   ═══════════════════════════════════════════════════════ */
+
+.vihate-img-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2147483640;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 99px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  pointer-events: none;
+  letter-spacing: 0.2px;
+  transition: opacity .2s;
+}
+
+.vihate-img-badge.vihate-img-violence {
+  background: rgba(42, 13, 20, 0.92);
+  color: #f43f5e;
+  border-color: rgba(244, 63, 94, 0.5);
+  animation: vihate-img-pulse 2s infinite;
+  pointer-events: auto;   /* clickable để unblur */
+}
+
+.vihate-img-badge.vihate-img-uncertain {
+  background: rgba(42, 31, 10, 0.90);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+@keyframes vihate-img-pulse {
+  0%, 100% { box-shadow: 0 2px 10px rgba(244,63,94,0.4); }
+  50%       { box-shadow: 0 2px 18px rgba(244,63,94,0.75); }
+}
+
+.vihate-img-icon  { font-size: 11px; line-height: 1; }
+.vihate-img-label { font-size: 11px; }
+.vihate-img-conf  { font-size: 10px; opacity: 0.75; font-family: 'JetBrains Mono', monospace; }

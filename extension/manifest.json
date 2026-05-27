@@ -1,0 +1,59 @@
+{
+  "manifest_version": 3,
+  "name": "ViDetect – Hate Speech & Violence Detector",
+  "version": "3.1.0",
+  "description": "Phát hiện văn bản thù ghét (PhoBERT), bạo lực trong video (MoBiLSTM) và ảnh (ViT) trên Facebook, YouTube, TikTok",
+
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus"
+  ],
+
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "https://*.fbcdn.net/*",
+    "https://*.ytimg.com/*",
+    "https://*.tiktokcdn.com/*",
+    "https://*.muscdn.com/*",
+    "https://*.cdninstagram.com/*",
+    "https://*/*"
+  ],
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16":  "icons/icon16.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "background": {
+    "service_worker": "background/background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.facebook.com/*",
+        "https://www.youtube.com/*",
+        "https://www.tiktok.com/*",
+        "https://*.threads.net/*"
+      ],
+      "js": [
+        "content/content.js",
+        "content/video_scanner.js",
+        "content/image_scanner.js"
+      ],
+      "css": ["content/content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
